@@ -1,5 +1,6 @@
 import React, { memo } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
+
 import { useTheme } from "@react-navigation/native";
 import { Task } from "../types";
 
@@ -12,49 +13,236 @@ interface Props {
 
 const TaskItem = memo(({ task, onToggle, onDelete, onEdit }: Props) => {
   const { colors } = useTheme();
+
   return (
-    <View
+    <TouchableOpacity
+      activeOpacity={0.9}
+      onPress={() => onEdit(task)}
       style={[
-        styles.row,
-        { borderColor: colors.border, backgroundColor: colors.card },
+        styles.container,
+        {
+          backgroundColor: colors.card,
+          borderColor: colors.border,
+          shadowColor: colors.shadow,
+        },
       ]}
     >
-      <TouchableOpacity onPress={() => onToggle(task)} style={styles.check}>
-        <Text style={styles.checkIcon}>{task.completed ? "✅" : "⬜"}</Text>
+      <TouchableOpacity
+        onPress={() => onToggle(task)}
+        style={[
+          styles.checkbox,
+          {
+            borderColor: task.completed ? colors.primary : colors.border,
+
+            backgroundColor: task.completed ? colors.primary : "transparent",
+          },
+        ]}
+      >
+        {task.completed && <Text style={styles.check}>✓</Text>}
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => onEdit(task)} style={styles.title}>
+
+      <View style={styles.content}>
         <Text
+          numberOfLines={1}
           style={[
-            styles.text,
+            styles.title,
             { color: colors.text },
-            task.completed && styles.done,
+            task.completed && styles.completedText,
           ]}
         >
           {task.title}
         </Text>
-        {!task.synced && <Text style={styles.unsynced}>⚠ Not synced</Text>}
+
+        <View style={styles.bottomRow}>
+          <View
+            style={[
+              styles.statusBadge,
+              {
+                backgroundColor: task.completed
+                  ? `${colors.success}20`
+                  : `${colors.warning}20`,
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.statusText,
+                {
+                  color: task.completed ? colors.success : colors.warning,
+                },
+              ]}
+            >
+              {task.completed ? "Completed" : "Pending"}
+            </Text>
+          </View>
+
+          {!task.synced && (
+            <View
+              style={[
+                styles.syncBadge,
+                {
+                  backgroundColor: `${colors.danger}20`,
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.syncText,
+                  {
+                    color: colors.danger,
+                  },
+                ]}
+              >
+                Not Synced
+              </Text>
+            </View>
+          )}
+        </View>
+      </View>
+
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={() => {
+          Alert.alert(
+            "Delete Task",
+            "Are you sure you want to delete this task?",
+            [
+              {
+                text: "Cancel",
+                style: "cancel",
+              },
+              {
+                text: "Delete",
+                style: "destructive",
+                onPress: () => onDelete(task.id),
+              },
+            ],
+          );
+        }}
+        style={[
+          styles.deleteButton,
+          {
+            backgroundColor: `${colors.danger}15`,
+          },
+        ]}
+      >
+        <Text
+          style={[
+            styles.deleteIcon,
+            {
+              color: colors.danger,
+            },
+          ]}
+        >
+          ✕
+        </Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => onDelete(task.id)}>
-        <Text style={styles.del}>🗑</Text>
-      </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
 });
 
 const styles = StyleSheet.create({
-  row: {
+  container: {
     flexDirection: "row",
     alignItems: "center",
+
+    marginHorizontal: 16,
+    marginVertical: 8,
+
     padding: 16,
-    borderBottomWidth: 1,
+
+    borderRadius: 22,
+    borderWidth: 1,
+
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+
+    elevation: 5,
   },
-  check: { marginRight: 12 },
-  checkIcon: { fontSize: 20 },
-  title: { flex: 1 },
-  text: { fontSize: 16 },
-  done: { textDecorationLine: "line-through", opacity: 0.4 },
-  unsynced: { fontSize: 11, color: "#F59E0B", marginTop: 2 },
-  del: { fontSize: 20 },
+
+  checkbox: {
+    width: 28,
+    height: 28,
+
+    borderRadius: 14,
+    borderWidth: 2,
+
+    alignItems: "center",
+    justifyContent: "center",
+
+    marginRight: 14,
+  },
+
+  check: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "700",
+  },
+
+  content: {
+    flex: 1,
+  },
+
+  title: {
+    fontSize: 16,
+    fontWeight: "700",
+  },
+
+  completedText: {
+    textDecorationLine: "line-through",
+    opacity: 0.45,
+  },
+
+  bottomRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+  },
+
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+  },
+
+  statusText: {
+    fontSize: 11,
+    fontWeight: "700",
+  },
+
+  syncBadge: {
+    marginLeft: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+  },
+
+  syncText: {
+    fontSize: 11,
+    fontWeight: "700",
+  },
+
+  deleteButton: {
+    width: 38,
+    height: 38,
+
+    borderRadius: 19,
+
+    alignItems: "center",
+    justifyContent: "center",
+
+    marginLeft: 12,
+  },
+
+  deleteIcon: {
+    fontSize: 18,
+    fontWeight: "700",
+  },
 });
 
 export default TaskItem;

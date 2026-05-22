@@ -22,7 +22,6 @@ const firebaseConfig = {
 const app =
   getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
-// Dynamically import to avoid module resolution issues
 const { initializeAuth, getReactNativePersistence } = require("firebase/auth");
 
 export const auth = initializeAuth(app, {

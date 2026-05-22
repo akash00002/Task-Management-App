@@ -29,7 +29,6 @@ export const registerForPushNotifications = async (): Promise<{
   }
 
   const permissions = await Notifications.requestPermissionsAsync();
-  console.log("permissions:", JSON.stringify(permissions));
 
   // Check any truthy permission value
   const isGranted = Object.values(permissions).some(
@@ -45,9 +44,7 @@ export const registerForPushNotifications = async (): Promise<{
   try {
     expoPushToken = (await Notifications.getExpoPushTokenAsync({ projectId }))
       .data;
-  } catch (e) {
-    console.log("Failed to get expo push token:", e);
-  }
+  } catch (e) {}
 
   let fcmToken: string | null = null;
   if (Platform.OS === "android") {
@@ -60,13 +57,8 @@ export const registerForPushNotifications = async (): Promise<{
         vibrationPattern: [0, 250, 250, 250],
         lightColor: "#4F46E5",
       });
-    } catch (e) {
-      console.log("Failed to get FCM token:", e);
-    }
+    } catch (e) {}
   }
-
-  console.log("Expo Push Token:", expoPushToken);
-  console.log("FCM Token:", fcmToken);
 
   return { expoPushToken, fcmToken };
 };
@@ -88,15 +80,11 @@ export const scheduleTaskReminder = async (
         date: triggerDate,
       },
     });
-  } catch (e) {
-    console.log("Notification scheduling skipped:", e);
-  }
+  } catch (e) {}
 };
 
 export const cancelReminder = async (notificationId: string) => {
   try {
     await Notifications.cancelScheduledNotificationAsync(notificationId);
-  } catch (e) {
-    console.log("Cancel notification skipped:", e);
-  }
+  } catch (e) {}
 };

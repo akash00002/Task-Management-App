@@ -52,9 +52,7 @@ export const addTask =
             `"${title}" has been added to your tasks`,
           );
         }
-      } catch (e) {
-        console.log("Push notification error:", e);
-      }
+      } catch (e) {}
     }
   };
 
@@ -92,9 +90,7 @@ export const toggleTask =
               `"${task.title}" marked as complete`,
             );
           }
-        } catch (e) {
-          console.log("Push notification error:", e);
-        }
+        } catch (e) {}
       }
     }
   };
@@ -108,7 +104,6 @@ export const deleteTask =
 
 export const syncPendingTasks = () => async (dispatch: AppDispatch) => {
   const unsynced = await getUnsyncedTasks();
-  console.log("Unsynced tasks:", unsynced.length);
 
   for (const task of unsynced) {
     try {
@@ -116,9 +111,6 @@ export const syncPendingTasks = () => async (dispatch: AppDispatch) => {
       await syncTaskToFirestore(syncedTask);
       await localSaveTask(syncedTask);
       dispatch(upsertTask(syncedTask));
-      console.log("Synced task:", task.title);
-    } catch (e) {
-      console.log("Sync failed for task:", task.title, e);
-    }
+    } catch (e) {}
   }
 };
